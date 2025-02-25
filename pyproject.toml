@@ -21,7 +21,7 @@ liquidpy = "^0.8.3"
 pandas = "^2.0"
 enlighten = "^1"
 argx = "^0.3"
-xqute = "^0.7.5"
+xqute = "^0.8"
 # xqute = { git = "https://github.com/pwwang/xqute.git" }
 ## included in xqute
 # rich = "^13"
@@ -42,13 +42,13 @@ pytest-forked = "^1.6"
 datar = { version = "^0.15", extras = ["pandas"] }
 flake8 = "^7.1.2"
 python-dotenv = "^1"
-cloudsh = {version = "^0.0.5", extras = ["gs"]}
+cloudsh = {version = "^0.1", extras = ["gs"]}
 
 # dependencies for pipelines in ./examples
 [tool.poetry.group.example.dependencies]
 mako = "^1.3"
 python-dotenv = "^1"
-cloudsh = {version = "^0.0.5", extras = ["gs"]}
+cloudsh = {version = "^0.1", extras = ["gs"]}
 
 [tool.poetry.scripts]
 pipen = "pipen.cli:main"

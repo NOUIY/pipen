@@ -200,22 +200,22 @@ s3 = ["boto3 (>=1.34.0)"]
 
 [[package]]
 name = "cloudsh"
-version = "0.0.5"
+version = "0.1.0"
 description = "A Python CLI wrapping common Linux commands for local/cloud files."
 optional = false
 python-versions = "<4.0,>=3.9"
 files = [
-    {file = "cloudsh-0.0.5-py3-none-any.whl", hash = "sha256:1c04b5914f665c69b74fc2192a5debe14bf15a51a45da0a1c71cc7f7313c6cb9"},
-    {file = "cloudsh-0.0.5.tar.gz", hash = "sha256:3936a4755a16010cc92ad75829b298158e05c6a29352b611ce7cfffb3dbca6de"},
+    {file = "cloudsh-0.1.0-py3-none-any.whl", hash = "sha256:2baa24f36e9565979b103ca7e351cd0f8a49c1be9f43c844d071ff9df05f13f0"},
+    {file = "cloudsh-0.1.0.tar.gz", hash = "sha256:aeadf68f59cca8ca8fc665f212eb760181e60c3182e84d25193bf495ee1c5e47"},
 ]
 
 [package.dependencies]
 argcomplete = ">=3.5.3,<4.0.0"
 argx = ">=0.3,<0.4"
-cloudpathlib = ">=0.20,<0.21"
 google-cloud-storage = {version = ">=3.0,<4.0", optional = true, markers = "extra == \"gs\" or extra == \"gcs\" or extra == \"all\""}
 python-dateutil = ">=2.9.0.post0,<3.0.0"
 python-simpleconf = {version = ">=0.6,<0.7", extras = ["toml"]}
+yunpath = ">=0.0.1,<0.0.2"
 
 [package.extras]
 all = ["azure-storage-blob (>=12,<13)", "azure-storage-file-datalake (>=12,<13)", "boto3 (>=1.34,<2.0)", "google-cloud-storage (>=3.0,<4.0)"]
@@ -1647,28 +1647,46 @@ files = [
 
 [[package]]
 name = "xqute"
-version = "0.7.5"
+version = "0.8.0"
 description = "A job management system for python"
+optional = false
+python-versions = "^3.9"
+files = []
+develop = false
+
+[package.dependencies]
+argx = "^0.3"
+rich = "^13"
+simplug = "^0.5"
+uvloop = "^0"
+yunpath = "^0.0.1"
+
+[package.extras]
+cloudsh = ["cloudsh (>=0.1,<0.2)"]
+gcs = ["google-cloud-storage (>=3.0,<4.0)"]
+gs = ["google-cloud-storage (>=3.0,<4.0)"]
+
+[package.source]
+type = "git"
+url = "https://github.com/pwwang/xqute.git"
+reference = "HEAD"
+resolved_reference = "8f37343e5d27716003fb7bd77b9fa6a67a88fc09"
+
+[[package]]
+name = "yunpath"
+version = "0.0.1"
+description = "Monkey patch cloudpathlib to fix issues or add features"
 optional = false
 python-versions = "<4.0,>=3.9"
 files = [
-    {file = "xqute-0.7.5-py3-none-any.whl", hash = "sha256:84cc35ce612cc502bedbc43deb4d4558a0cf307df79e6cb213db86c1e50f3bf9"},
-    {file = "xqute-0.7.5.tar.gz", hash = "sha256:f2c0e721a2b2558679f971e0b92a7a2ccd11c9b49b03d220d870d03c52bc27c9"},
+    {file = "yunpath-0.0.1-py3-none-any.whl", hash = "sha256:a23126554c4ea90b208912056b99d3db5508321d8f4a112299fbf2620cba408f"},
+    {file = "yunpath-0.0.1.tar.gz", hash = "sha256:142219744c04836a01df7111152969f3456aa9a9cc325eaad99fbf19c28c2a7f"},
 ]
 
 [package.dependencies]
-argx = ">=0.3,<0.4"
-cloudpathlib = ">=0.20,<0.21"
-rich = ">=13,<14"
-simplug = ">=0.5,<0.6"
-uvloop = ">=0,<1"
-
-[package.extras]
-cloudsh = ["cloudsh (>=0.0.5,<0.0.6)"]
-gcs = ["google-cloud-storage (>=3.0,<4.0)"]
-gs = ["google-cloud-storage (>=3.0,<4.0)"]
+cloudpathlib = ">=0.20.0,<0.21.0"
 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "1e2317c4109ca69f4045d6f427a69a28baf7c06c6a5b7e47125d72a3b5f923b4"
+content-hash = "301d016d2c8f096cdd0176a525c3e0f84f1e577cf497bc77d8ce97a7f21f65c8"

@@ -13,7 +13,7 @@ from rich.panel import Panel
 from rich.text import Text
 from simpleconf import ProfileConfig
 from varname import varname, VarnameException
-from cloudpathlib import AnyPath, CloudPath
+from yunpath import AnyPath, CloudPath
 from xqute.utils import PathType
 
 from .defaults import CONFIG, CONFIG_FILES

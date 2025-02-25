@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, TYPE_CHECKING
 
-from cloudpathlib import AnyPath
+from yunpath import AnyPath
 from simplug import Simplug, SimplugResult
 from xqute import JobStatus, Scheduler
 

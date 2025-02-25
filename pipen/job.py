@@ -8,7 +8,7 @@ from os import PathLike
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Mapping
 
-from cloudpathlib import AnyPath
+from yunpath import AnyPath
 from diot import OrderedDiot
 from xqute import Job as XquteJob
 from xqute.utils import localize
@@ -23,7 +23,7 @@ from .exceptions import (
     TemplateRenderingError,
 )
 from .template import Template
-from .utils import logger, strsplit, path_is_symlink, path_rmtree, path_symlink_to
+from .utils import logger, strsplit, path_is_symlink, path_symlink_to
 
 if TYPE_CHECKING:  # pragma: no cover
     from xqute.utils import PathType
@@ -70,7 +70,7 @@ class Job(XquteJob, JobCaching):
             if path_is_symlink(metaout) or metaout.is_file():
                 metaout.unlink()
             elif metaout.is_dir():
-                path_rmtree(metaout)
+                metaout.rmtree()
 
             path_symlink_to(metaout, ret)
         return ret

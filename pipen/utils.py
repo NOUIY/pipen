@@ -30,7 +30,7 @@ from typing import (
 
 import diot
 import simplug
-from cloudpathlib import AnyPath, CloudPath
+from yunpath import AnyPath, CloudPath
 from rich.console import Console
 from rich.logging import RichHandler as _RichHandler
 from rich.table import Table
@@ -811,15 +811,3 @@ def path_symlink_to(
         src.write_text(f"symlink:{dst}")
     else:
         src.symlink_to(dst, target_is_directory=target_is_directory)
-
-
-def path_rmtree(path: Path | CloudPath) -> None:
-    """Remove a directory tree for both local and cloud paths.
-
-    Args:
-        path: The path to remove
-    """
-    if isinstance(path, CloudPath):
-        path.rmtree()
-    else:
-        shutil.rmtree(path)

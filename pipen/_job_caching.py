@@ -3,12 +3,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from cloudpathlib import AnyPath
+from yunpath import AnyPath
 from diot import Diot
 from simpleconf import Config
 
 from .defaults import ProcInputType, ProcOutputType
-from .utils import get_mtime, path_rmtree, path_is_symlink
+from .utils import get_mtime, path_is_symlink
 
 
 class JobCaching:
@@ -82,7 +82,7 @@ class JobCaching:
                 if not path.is_dir():
                     path.unlink()
                 else:
-                    path_rmtree(path)
+                    path.rmtree(ignore_errors=True)
                     path.mkdir()
 
     async def _check_cached(self) -> bool:

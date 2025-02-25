@@ -23,7 +23,7 @@ from diot import Diot
 from rich import box
 from rich.panel import Panel
 from varname import VarnameException, varname
-from cloudpathlib import AnyPath
+from yunpath import AnyPath
 from xqute import JobStatus, Xqute
 
 from .defaults import ProcInputType

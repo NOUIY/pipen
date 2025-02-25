@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any, List
 
 import pandas
-from cloudpathlib import AnyPath, CloudPath
+from yunpath import AnyPath, CloudPath
 from pandas import DataFrame
 from pipda import register_verb
 
