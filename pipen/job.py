@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, Any, Dict, Mapping
 from yunpath import AnyPath, CloudPath
 from diot import OrderedDiot
 from xqute import Job as XquteJob
-from xqute.utils import DualPath
+from xqute.utils import DualPath, PathWithSpec
 
 from ._job_caching import JobCaching
 from .defaults import ProcInputType, ProcOutputType
@@ -171,10 +171,18 @@ class Job(XquteJob, JobCaching):
                     # we should use the mounted path to access the file
                     ret[inkey] = ret[inkey].mounted
 
-                # we should use it as a string
-                path = AnyPath(ret[inkey])
-                if isinstance(path, Path):
-                    ret[inkey] = DualPath(path.expanduser().absolute()).mounted
+                elif not isinstance(ret[inkey], PathWithSpec):
+                    # str, Path, CloudPath
+                    path = AnyPath(ret[inkey])
+                    if isinstance(path, Path):
+                        # Same as:
+                        # p = PathWithSpec(path.expanduser().absolute())
+                        # p.spec = path.expanduser().absolute()
+                        ret[inkey] = DualPath(path.expanduser().absolute()).mounted
+                    else:
+                        ret[inkey] = DualPath(path).mounted
+
+                # already a PathWithSpec
 
             if intype in (ProcInputType.FILES, ProcInputType.DIRS):
                 if isinstance(ret[inkey], pandas.DataFrame):
@@ -200,9 +208,15 @@ class Job(XquteJob, JobCaching):
                         # we should use the mounted path to access the file
                         file = file.mounted
 
-                    path = AnyPath(file)
-                    if isinstance(path, Path):
-                        ret[inkey][i] = DualPath(path.expanduser().absolute()).mounted
+                    elif not isinstance(file, PathWithSpec):
+                        # str, Path, CloudPath
+                        path = AnyPath(file)
+                        if isinstance(path, Path):
+                            ret[inkey][i] = DualPath(
+                                path.expanduser().absolute()
+                            ).mounted
+                        else:
+                            ret[inkey][i] = DualPath(path).mounted
 
         return ret
 
