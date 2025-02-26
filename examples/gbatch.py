@@ -8,12 +8,28 @@ load_dotenv(Path(__file__).parent.parent / ".env")
 
 
 class MyProcess(Proc):
-    """A process using mako templating"""
 
     input = "a"
     input_data = [1]
     output = "outfile:file:{{in.a}}.txt"
-    script = "ls -l {{job.outdir}}; touch {{out.outfile}}"
+    script = "echo {{in.a}} > {{out.outfile}}"
+
+
+# Works even when metadir/outdir mounted
+class MyProcess2(Proc):
+    requires = MyProcess
+    input = "infile:file"
+    output = "outfile:file:{{in.infile.stem}}2.txt"
+    script = "echo 123 > {{out.outfile}}"
+    export = True
+
+
+# Works even when metadir/outdir mounted
+class MyProcess3(Proc):
+    requires = MyProcess2
+    input = "infile:file"
+    output = "outfile:file:{{in.infile.stem}}3.txt"
+    script = "echo 456 > {{out.outfile}}"
 
 
 class MyGBatchPipeline(Pipen):
