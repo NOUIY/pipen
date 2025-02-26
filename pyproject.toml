@@ -15,14 +15,24 @@ repository = "https://github.com/pwwang/pipen"
 [tool.poetry.build]
 generate-setup-file = true
 
+# fix ssl certificate issue on gcp head nodes
+[[tool.poetry.source]]
+name = "fpho"
+url = "https://files.pythonhosted.org"
+priority = "primary"
+
+[[tool.poetry.source]]
+name = "PyPI"
+priority = "primary"
+
 [tool.poetry.dependencies]
 python = "^3.9"
 liquidpy = "^0.8.3"
 pandas = "^2.0"
 enlighten = "^1"
 argx = "^0.3"
-xqute = "^0.8"
-# xqute = { git = "https://github.com/pwwang/xqute.git" }
+# xqute = "^0.8"
+xqute = { git = "https://github.com/pwwang/xqute.git" }
 ## included in xqute
 # rich = "^13"
 # diot = "^0.1"

@@ -1,4 +1,5 @@
 """Provide some utilities"""
+
 from __future__ import annotations
 
 import re
@@ -36,6 +37,7 @@ from rich.logging import RichHandler as _RichHandler
 from rich.table import Table
 from rich.text import Text
 from simplug import SimplugContext
+from xqute.utils import DualPath
 
 from .defaults import (
     CONSOLE_DEFAULT_WIDTH,
@@ -417,7 +419,10 @@ def pipen_banner() -> RenderableType:
     return table
 
 
-def get_mtime(path: str | PathLike | CloudPath, dir_depth: int = 1) -> float:
+def get_mtime(
+    path: str | PathLike | CloudPath | DualPath,
+    dir_depth: int = 1,
+) -> float:
     """Get the modification time of a path.
     If path is a directory, try to get the last modification time of the
     contents in the directory at given dir_depth
@@ -427,6 +432,8 @@ def get_mtime(path: str | PathLike | CloudPath, dir_depth: int = 1) -> float:
     Returns:
         The last modification time of path
     """
+    path = getattr(path, "path", path)
+
     mtime = 0.0
     path = AnyPath(path)
     if not path.exists():
@@ -436,7 +443,7 @@ def get_mtime(path: str | PathLike | CloudPath, dir_depth: int = 1) -> float:
         if dir_depth == 0 or not path.is_dir():
             return path.stat().st_mtime
 
-        for file in path.glob("*"):
+        for file in path.iterdir():
             mtime = max(mtime, get_mtime(file, dir_depth - 1))
 
         return mtime
@@ -446,7 +453,7 @@ def get_mtime(path: str | PathLike | CloudPath, dir_depth: int = 1) -> float:
         if dir_depth == 0 or not path.is_dir():
             return path.lstat().st_mtime
 
-        for file in path.glob("*"):
+        for file in path.iterdir():
             mtime = max(mtime, get_mtime(file, dir_depth - 1))
 
         return mtime
@@ -460,7 +467,7 @@ def get_mtime(path: str | PathLike | CloudPath, dir_depth: int = 1) -> float:
         except Exception:
             return path.stat().st_mtime
 
-    for file in dpath.glob("*"):
+    for file in dpath.iterdir():
         mtime = max(mtime, get_mtime(file, dir_depth - 1))
     return mtime
 
@@ -483,9 +490,7 @@ def is_subclass(obj: Any, cls: type) -> bool:
         return False
 
 
-def load_entrypoints(
-    group: str
-) -> Iterable[Tuple[str, Any]]:  # pragma: no cover
+def load_entrypoints(group: str) -> Iterable[Tuple[str, Any]]:  # pragma: no cover
     """Load objects from setuptools entrypoints by given group name
 
     Args:
@@ -576,6 +581,7 @@ def mark(**kwargs) -> Callable[[type], type]:
     Returns:
         The decorator
     """
+
     def decorator(cls: type) -> type:
         if not getattr(cls, "__meta__", None):
             cls.__meta__ = {}
@@ -717,7 +723,7 @@ async def load_pipeline(
 
         elif isinstance(obj, type) and issubclass(obj, Pipen):
             # Avoid "pipeline" to be used as pipeline name by varname
-            (pipeline, ) = (obj(**kwargs), )  # type: ignore
+            (pipeline,) = (obj(**kwargs),)  # type: ignore
 
         elif isinstance(obj, Pipen):
             pipeline._kwargs.update(kwargs)
@@ -768,7 +774,7 @@ def is_loading_pipeline(*flags: str, argv: Sequence[str] | None = None) -> bool:
     return False  # pragma: no cover
 
 
-def path_is_symlink(path: Path | CloudPath) -> bool:
+def path_is_symlink(path: Path | CloudPath | DualPath) -> bool:
     """Check if a path is a symlink.
 
     CloudPath.is_symlink() is not implemented yet, so we need to check
@@ -780,6 +786,7 @@ def path_is_symlink(path: Path | CloudPath) -> bool:
     Returns:
         True if the path is a symlink, otherwise False
     """
+    path = getattr(path, "path", path)
     if isinstance(path, Path):
         if path.is_symlink():
             return True
@@ -795,8 +802,8 @@ def path_is_symlink(path: Path | CloudPath) -> bool:
 
 
 def path_symlink_to(
-    src: Path | CloudPath,
-    dst: Path | CloudPath,
+    src: Path | CloudPath | DualPath,
+    dst: Path | CloudPath | DualPath,
     target_is_directory: bool = False,
 ) -> None:
     """Create a symbolic link pointing to src named dst.
@@ -806,6 +813,8 @@ def path_symlink_to(
         dst: The destination path
         target_is_directory: If True, the symbolic link will be to a directory.
     """
+    src = getattr(src, "path", src)
+    dst = getattr(dst, "path", dst)
     if isinstance(dst, CloudPath) or isinstance(src, CloudPath):
         # Create a fake symlink file for cloud paths
         src.write_text(f"symlink:{dst}")

@@ -60,7 +60,7 @@ def test_proc_with_symlink_input(pipen, tmp_path):
     proc = Proc.from_proc(FileInputProc, input_data=[infile_symlink])
     pipen.set_starts(proc).run()
     outfile = proc.output_data["out"].iloc[0]
-    assert outfile.endswith("b.txt")
+    assert outfile.name == "b.txt"
 
 
 @pytest.mark.forked
