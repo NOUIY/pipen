@@ -10,9 +10,11 @@ import os
 import time
 from pathlib import Path
 
+from xqute.path import DualPath
 from pipen import Proc
 
 from .helpers import (  # noqa: F401
+    BUCKET,
     ErrorProc,
     FileInputProc,
     FileInputProcToDiff,
@@ -34,7 +36,7 @@ from .helpers import (  # noqa: F401
 )
 
 
-# @pytest.mark.forked
+@pytest.mark.forked
 def test_caching(caplog, pipen, infile):
     proc = Proc.from_proc(FileInputProc, input_data=[infile])
     pipen.set_starts(proc).run()
@@ -176,9 +178,29 @@ def test_check_cached_input_either_none(caplog, pipen, infile1):
     pipen.build_proc_relationships()
     assert (
         "Not cached (input in:file is different; "
-        "it is <NoneType> in signature, but <PathWithSpec> in data)"
-        in caplog.text
+        "it is <NoneType> in signature, but <MountedPath> in data)" in caplog.text
     )
+
+
+@pytest.mark.forked
+def test_check_cached_infiles_none(caplog, pipen):
+    proc = Proc.from_proc(FileInputsProc, input_data=[[None]])
+    pipen.set_starts(proc).run()
+
+
+@pytest.mark.forked
+def test_script_changed(caplog, pipen):
+    pipen.set_starts(NormalProc).run()
+
+    class NormalProc2(NormalProc):
+        script = "echo something changed"
+
+    caplog.clear()
+
+    proc = Proc.from_proc(NormalProc2, name="NormalProc")
+    pipen.set_starts(proc).run()
+    pipen.build_proc_relationships()
+    assert "Job script updated." in caplog.text
 
 
 @pytest.mark.forked
@@ -339,6 +361,48 @@ def test_job_log_limit(caplog, pipen):
     caplog.clear()
     pipen.set_starts(proc2).run()
     assert "showing similar logs" in caplog.text
+
+
+@pytest.mark.forked
+def test_dualpath_input(pipen, infile1, tmp_path):
+    mounted_file = tmp_path / "infile"
+    mounted_file.write_text("infile content")
+    infile = DualPath(infile1, mounted=mounted_file)
+    proc = Proc.from_proc(FileInputProc, input_data=[infile])
+    pipen.set_starts(proc).run()
+    assert pipen.outdir.joinpath("proc", "infile").read_text() == "infile content"
+
+
+@pytest.mark.forked
+def test_dualpath_input_files(pipen, infile1):
+    infile = DualPath(infile1, mounted=infile1)
+    proc = Proc.from_proc(FileInputsProc, input_data=[[infile, infile]])
+    pipen.set_starts(proc).run()
+    assert pipen.outdir.joinpath("proc", "infile1").read_text().strip() == "infile1"
+
+
+@pytest.mark.forked
+def test_input_files_wrong_data_type(pipen):
+    proc = Proc.from_proc(FileInputsProc, input_data=[[1]])
+    with pytest.raises(TemplateRenderingError) as exc_info:
+        pipen.set_starts(proc).run()
+
+    assert isinstance(exc_info.value.__cause__, ProcInputTypeError)
+
+
+@pytest.mark.forked
+def test_cloudpath_input(pipen):
+    proc = Proc.from_proc(FileInputProc, input_data=["gs://test-bucket/test.txt"])
+    assert pipen.set_starts(proc).run() is False
+
+
+@pytest.mark.forked
+def test_cloudpath_input_files(pipen):
+    proc = Proc.from_proc(
+        FileInputsProc, input_data=[[f"{BUCKET}/pipen-test/channel/test1.txt"]]
+    )
+    pipen.set_starts(proc).run()
+    assert pipen.outdir.joinpath("proc", "test1.txt").read_text().strip() == "test1.txt"
 
 
 @pytest.mark.forked

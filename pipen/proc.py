@@ -335,7 +335,9 @@ class Proc(ABC, metaclass=ProcMeta):
         self.pbar = None
         self.jobs: List[Any] = []
         self.xqute = None
-        self.__class__.workdir = AnyPath(self.pipeline.workdir) / self.name
+        self.__class__.workdir = (
+            AnyPath(self.pipeline.workdir) / self.name  # type: ignore
+        )
         # plugins can modify some default attributes
         plugin.hooks.on_proc_create(self)
 

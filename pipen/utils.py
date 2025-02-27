@@ -37,7 +37,6 @@ from rich.logging import RichHandler as _RichHandler
 from rich.table import Table
 from rich.text import Text
 from simplug import SimplugContext
-from xqute.utils import DualPath
 
 from .defaults import (
     CONSOLE_DEFAULT_WIDTH,
@@ -53,6 +52,7 @@ if TYPE_CHECKING:  # pragma: no cover
     import pandas
     from rich.segment import Segment
     from rich.console import RenderableType
+    from xqute.path import DualPath
 
     from .pipen import Pipen
     from .proc import Proc
@@ -654,7 +654,7 @@ def _get_obj_from_spec(spec: str) -> Any:
 
 
 async def load_pipeline(
-    obj: str | Type[Proc] | Type[ProcGroup] | Type[Pipen],
+    obj: str | Type[Proc] | Type[ProcGroup] | Type[Pipen] | Pipen,
     argv0: str | None = None,
     argv1p: Sequence[str] | None = None,
     **kwargs: Any,
@@ -726,20 +726,20 @@ async def load_pipeline(
             (pipeline,) = (obj(**kwargs),)  # type: ignore
 
         elif isinstance(obj, Pipen):
-            pipeline._kwargs.update(kwargs)
+            pipeline._kwargs.update(kwargs)  # type: ignore
 
         # Initialize the pipeline so that the arguments definied by
         # other plugins (i.e. pipen-args) to take in place.
-        pipeline.workdir = Path(pipeline.config.workdir).joinpath(
+        pipeline.workdir = Path(pipeline.config.workdir).joinpath(  # type: ignore
             kwargs.get("name", pipeline.name)
         )
-        await pipeline._init()
-        pipeline.workdir.mkdir(parents=True, exist_ok=True)
-        pipeline.build_proc_relationships()
+        await pipeline._init()  # type: ignore
+        pipeline.workdir.mkdir(parents=True, exist_ok=True)  # type: ignore
+        pipeline.build_proc_relationships()  # type: ignore
     finally:
         sys.argv = old_argv
 
-    return pipeline
+    return pipeline  # type: ignore
 
 
 def is_loading_pipeline(*flags: str, argv: Sequence[str] | None = None) -> bool:

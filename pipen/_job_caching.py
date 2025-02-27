@@ -1,13 +1,16 @@
 """Provide JobCaching class that implements caching for jobs"""
 
 from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from diot import Diot
 from simpleconf import Config
-from xqute.utils import DualPath
 
 from .defaults import ProcInputType, ProcOutputType
 from .utils import get_mtime, path_is_symlink
+
+if TYPE_CHECKING:
+    from xqute.path import DualPath
 
 
 class JobCaching:
@@ -182,10 +185,12 @@ class JobCaching:
                         return False
 
                 # FILES/DIRS
-                elif sig_indata is None:  # both None:
-                    continue
 
-                elif not isinstance(sig_indata, list):
+                # self.input[inkey] can't be None with intype files/dirs
+                # elif sig_indata is None:  # both None
+                #     continue
+
+                elif not isinstance(sig_indata, list):  # pragma: no cover
                     self.log(
                         "debug",
                         "Not cached (input %s:%s is different, "
@@ -197,7 +202,7 @@ class JobCaching:
                     return False
 
                 else:  # both list
-                    if len(sig_indata) != len(self.input[inkey]):
+                    if len(sig_indata) != len(self.input[inkey]):  # pragma: no cover
                         self.log(
                             "debug",
                             "Not cached (input %s:%s length is different)",
@@ -207,7 +212,7 @@ class JobCaching:
                         return False
 
                     for i, file in enumerate(self.input[inkey]):
-                        if sig_indata[i] != str(file.spec):
+                        if sig_indata[i] != str(file.spec):  # pragma: no cover
                             self.log(
                                 "debug",
                                 "Not cached (input %s:%s at index %s is different)",
@@ -231,7 +236,7 @@ class JobCaching:
             for outkey, outtype in self._output_types.items():
                 sig_outdata = signature.output.data.get(outkey)
                 if outtype == ProcOutputType.VAR:
-                    if sig_outdata != self.output[outkey]:
+                    if sig_outdata != self.output[outkey]:  # pragma: no cover
                         self.log(
                             "debug",
                             "Not cached (output %s:%s is different)",
@@ -241,7 +246,7 @@ class JobCaching:
                         return False
 
                 else:  # FILE/DIR
-                    if sig_outdata != str(self.output[outkey].spec):
+                    if sig_outdata != str(self.output[outkey].spec):  # pragma: no cover
                         self.log(
                             "debug",
                             "Not cached (output %s:%s is different)",

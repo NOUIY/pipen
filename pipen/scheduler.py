@@ -11,7 +11,7 @@ from xqute.schedulers.sge_scheduler import SgeScheduler as XquteSgeScheduler
 from xqute.schedulers.slurm_scheduler import SlurmScheduler as XquteSlurmScheduler
 from xqute.schedulers.ssh_scheduler import SshScheduler as XquteSshScheduler
 from xqute.schedulers.gbatch_scheduler import GbatchScheduler as XquteGbatchScheduler
-from xqute.utils import DualPath
+from xqute.path import DualPath
 
 from .defaults import SCHEDULER_ENTRY_GROUP
 from .exceptions import NoSuchSchedulerError, WrongSchedulerTypeError
@@ -26,7 +26,9 @@ class SchedulerPostInit:
     """Provides post init function for all schedulers"""
 
     job_class = Job
-    MOUNTED_OUTDIR = None
+
+    MOUNTED_METADIR: str
+    MOUNTED_OUTDIR: str
 
     def post_init(self, proc: Proc) -> None:
         ...
@@ -51,14 +53,14 @@ class SshScheduler(SchedulerPostInit, XquteSshScheduler):
 class GbatchScheduler(SchedulerPostInit, XquteGbatchScheduler):
     """Google Cloud Batch scheduler"""
 
-    MOUNTED_METADIR = "/mnt/pipen-pipeline/workdir"
-    MOUNTED_OUTDIR = "/mnt/pipen-pipeline/outdir"
+    MOUNTED_METADIR: str = "/mnt/pipen-pipeline/workdir"
+    MOUNTED_OUTDIR: str = "/mnt/pipen-pipeline/outdir"
 
     def post_init(self, proc: Proc):
         super().post_init(proc)
 
         mounted_workdir = f"{self.MOUNTED_METADIR}/{proc.name}"
-        self.workdir = DualPath(self.workdir.path, mounted=mounted_workdir)
+        self.workdir: DualPath = DualPath(self.workdir.path, mounted=mounted_workdir)
 
         # update the mounted metadir
         self.config.taskGroups[0].taskSpec.volumes[-1].mountPath = mounted_workdir
@@ -67,7 +69,9 @@ class GbatchScheduler(SchedulerPostInit, XquteGbatchScheduler):
         self.config.taskGroups[0].taskSpec.volumes.append(
             Diot(
                 {
-                    "gcs": {"remotePath": proc.pipeline.outdir._no_prefix},
+                    "gcs": {
+                        "remotePath": proc.pipeline.outdir._no_prefix,  # type: ignore
+                    },
                     "mountPath": self.MOUNTED_OUTDIR,
                 }
             )

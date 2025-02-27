@@ -81,7 +81,7 @@ class Channel(DataFrame):
                 return file.is_file()
             return True
 
-        pattern = AnyPath(pattern)
+        pattern: Path | CloudPath = AnyPath(pattern)
         if isinstance(pattern, CloudPath):
             parts = pattern.parts
             bucket = CloudPath("".join(parts[:2]))  # gs://bucket

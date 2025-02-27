@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, Any, Dict, Mapping
 from yunpath import AnyPath, CloudPath
 from diot import OrderedDiot
 from xqute import Job as XquteJob
-from xqute.utils import DualPath, PathWithSpec
+from xqute.path import DualPath, MountedPath
 
 from ._job_caching import JobCaching
 from .defaults import ProcInputType, ProcOutputType
@@ -44,7 +44,7 @@ class Job(XquteJob, JobCaching):
         self.proc: Proc = None
         self._output_types: Dict[str, str] = {}
         # Where the real output directory is
-        self._outdir = None
+        self._outdir: DualPath = None
 
     async def prepare(self, proc: Proc) -> None:
         """Prepare the job by given process
@@ -59,7 +59,7 @@ class Job(XquteJob, JobCaching):
         self.proc = proc
 
         # Where the jobs of "export" process should put their outputs
-        export_outdir = proc.pipeline.outdir / proc.name
+        export_outdir = proc.pipeline.outdir / proc.name  # type: ignore
 
         # Where the jobs of "export" process should put their outputs
         # (in the mounted filesystem)
@@ -171,18 +171,18 @@ class Job(XquteJob, JobCaching):
                     # we should use the mounted path to access the file
                     ret[inkey] = ret[inkey].mounted
 
-                elif not isinstance(ret[inkey], PathWithSpec):
+                elif not isinstance(ret[inkey], MountedPath):
                     # str, Path, CloudPath
                     path = AnyPath(ret[inkey])
                     if isinstance(path, Path):
                         # Same as:
-                        # p = PathWithSpec(path.expanduser().absolute())
+                        # p = MountedPath(path.expanduser().absolute())
                         # p.spec = path.expanduser().absolute()
                         ret[inkey] = DualPath(path.expanduser().absolute()).mounted
                     else:
                         ret[inkey] = DualPath(path).mounted
 
-                # already a PathWithSpec
+                # already a MountedPath
 
             if intype in (ProcInputType.FILES, ProcInputType.DIRS):
                 if isinstance(ret[inkey], pandas.DataFrame):
@@ -206,9 +206,9 @@ class Job(XquteJob, JobCaching):
                     if isinstance(file, DualPath):
                         # if it is a dualpath, it means it is a mounted path
                         # we should use the mounted path to access the file
-                        file = file.mounted
+                        ret[inkey][i] = file.mounted
 
-                    elif not isinstance(file, PathWithSpec):
+                    elif not isinstance(file, MountedPath):
                         # str, Path, CloudPath
                         path = AnyPath(file)
                         if isinstance(path, Path):
