@@ -63,7 +63,7 @@ class Job(XquteJob, JobCaching):
 
         # Where the jobs of "export" process should put their outputs
         # (in the mounted filesystem)
-        mounted_outdir = getattr(proc.xqute.scheduler, "MOUNTED_OUTDIR")
+        mounted_outdir = getattr(proc.xqute.scheduler, "MOUNTED_OUTDIR", None)
         if mounted_outdir is not None:  # pragma: no cover
             mounted_outdir = Path(mounted_outdir) / proc.name
 

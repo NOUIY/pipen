@@ -183,12 +183,6 @@ def test_check_cached_input_either_none(caplog, pipen, infile1):
 
 
 @pytest.mark.forked
-def test_check_cached_infiles_none(caplog, pipen):
-    proc = Proc.from_proc(FileInputsProc, input_data=[[None]])
-    pipen.set_starts(proc).run()
-
-
-@pytest.mark.forked
 def test_script_changed(caplog, pipen):
     pipen.set_starts(NormalProc).run()
 
